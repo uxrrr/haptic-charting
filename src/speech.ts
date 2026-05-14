@@ -12,14 +12,19 @@ let primed = false;
 
 export function primeSpeech(): void {
     if (!supported || primed) return;
-    // iOS Safari requires the priming utterance to be AUDIBLE (volume 1, normal
-    // rate, real content). A near-silent space character doesn't unlock the
-    // queue — empirically confirmed. So we say "ready" so the user knows it
-    // worked and iOS gets its audible utterance.
-    const utter = new SpeechSynthesisUtterance('ready');
+    forcePrimeSpeech();
+}
+
+// Always speaks "ready" regardless of primed state — used by the Initialize
+// button to manually force-prime iOS Safari when the implicit priming on
+// toggle/pointerdown doesn't take.
+export function forcePrimeSpeech(): void {
+    if (!supported) return;
+    const utter = new SpeechSynthesisUtterance('speech ready');
     utter.volume = 1;
     utter.rate = 1.3;
     utter.lang = 'en-US';
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utter);
     window.speechSynthesis.resume();
     primed = true;

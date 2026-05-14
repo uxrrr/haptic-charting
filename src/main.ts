@@ -3,7 +3,7 @@ import { valuesToPoints, drawChart, type Point, type ChartState } from './chart'
 import { vibrateForProximity, stop as stopHaptics } from './haptics';
 import { initAudio, resumeAudio, playForProximity, stopAudio } from './audio';
 import { distanceToPolyline, describePosition } from './touch';
-import { speak, cancelSpeech, primeSpeech } from './speech';
+import { speak, cancelSpeech, primeSpeech, forcePrimeSpeech } from './speech';
 import { loadSettings, saveSettings, type Settings } from './settings';
 
 const hasVibration = 'vibrate' in navigator;
@@ -23,6 +23,7 @@ const ariaLive = document.getElementById('aria-live') as HTMLDivElement;
 const toggleSound = document.getElementById('toggle-sound') as HTMLInputElement;
 const toggleHaptic = document.getElementById('toggle-haptic') as HTMLInputElement;
 const toggleScreenReader = document.getElementById('toggle-screenreader') as HTMLInputElement;
+const initSpeechBtn = document.getElementById('init-speech') as HTMLButtonElement;
 
 let currentDataset = 'sine';
 let chartPoints: Point[] = [];
@@ -191,6 +192,10 @@ toggleHaptic.addEventListener('change', () => {
     settings.haptic = toggleHaptic.checked;
     saveSettings(settings);
     if (!settings.haptic) stopHaptics();
+});
+
+initSpeechBtn.addEventListener('click', () => {
+    forcePrimeSpeech();
 });
 
 toggleScreenReader.addEventListener('change', () => {
