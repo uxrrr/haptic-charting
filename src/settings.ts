@@ -10,7 +10,7 @@ export function defaultSettings(): Settings {
     const hasVibration = typeof navigator !== 'undefined' && 'vibrate' in navigator;
     return {
         sound: !hasVibration,
-        haptic: hasVibration,
+        haptic: false,
         screenReader: false,
     };
 }
