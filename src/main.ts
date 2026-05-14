@@ -12,6 +12,7 @@ const hasVibration = 'vibrate' in navigator;
 const settings: Settings = loadSettings();
 
 const THRESHOLD_PX = 35;
+const HAPTIC_THRESHOLD_PX = 8;
 const GRID_DWELL_THRESHOLD_PX = 20;
 const ARIA_INTERVAL_MS = 500;
 const DWELL_MS = 500;
@@ -143,9 +144,10 @@ function updatePointer(clientX: number, clientY: number): void {
     const pixelDist = distanceToPolyline(next, chartPoints);
     currentProximity = pixelDist / THRESHOLD_PX;
     if (hasVibration && settings.haptic) {
-        vibrateForProximity(currentProximity);
-        // Brief pulse when crossing a grid line, only when not in chart-line haptic range
-        if (currentProximity >= 1 && prev) {
+        const hapticProximity = pixelDist / HAPTIC_THRESHOLD_PX;
+        vibrateForProximity(hapticProximity);
+        // Brief pulse when crossing a grid line, only when not on the chart line
+        if (hapticProximity >= 1 && prev) {
             const crossed = detectGridCrossing(prev, next);
             if (crossed) vibrateGridLine();
         }
