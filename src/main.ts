@@ -23,7 +23,6 @@ const ariaLive = document.getElementById('aria-live') as HTMLDivElement;
 const toggleSound = document.getElementById('toggle-sound') as HTMLInputElement;
 const toggleHaptic = document.getElementById('toggle-haptic') as HTMLInputElement;
 const toggleScreenReader = document.getElementById('toggle-screenreader') as HTMLInputElement;
-const testSpeechBtn = document.getElementById('test-speech') as HTMLButtonElement;
 
 let currentDataset = 'sine';
 let chartPoints: Point[] = [];
@@ -192,30 +191,6 @@ toggleHaptic.addEventListener('change', () => {
     settings.haptic = toggleHaptic.checked;
     saveSettings(settings);
     if (!settings.haptic) stopHaptics();
-});
-
-testSpeechBtn.addEventListener('click', () => {
-    const synth = window.speechSynthesis;
-    const supported = !!synth;
-    const voiceCount = supported ? synth.getVoices().length : 0;
-
-    let info = `support:${supported} voices:${voiceCount}`;
-
-    if (supported) {
-        const utter = new SpeechSynthesisUtterance('test one two three');
-        utter.volume = 1;
-        utter.rate = 1;
-        utter.lang = 'en-US';
-        utter.onstart = () => { statusEl.textContent = info + ' | onstart fired'; };
-        utter.onend = () => { statusEl.textContent = info + ' | onend fired'; };
-        utter.onerror = (ev) => { statusEl.textContent = info + ' | error: ' + (ev as SpeechSynthesisErrorEvent).error; };
-        synth.cancel();
-        synth.speak(utter);
-        synth.resume();
-        info += ` pending:${synth.pending} speaking:${synth.speaking}`;
-    }
-
-    statusEl.textContent = info;
 });
 
 toggleScreenReader.addEventListener('change', () => {
