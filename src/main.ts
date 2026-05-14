@@ -6,6 +6,8 @@ import { distanceToPolyline, describePosition } from './touch';
 import { speak, cancelSpeech, primeSpeech, forcePrimeSpeech } from './speech';
 import { loadSettings, saveSettings, type Settings } from './settings';
 
+const VERSION = 'v17';
+
 const hasVibration = 'vibrate' in navigator;
 const settings: Settings = loadSettings();
 if (!hasVibration) settings.haptic = false;
@@ -25,6 +27,8 @@ const toggleSound = document.getElementById('toggle-sound') as HTMLInputElement;
 const toggleHaptic = document.getElementById('toggle-haptic') as HTMLInputElement;
 const toggleScreenReader = document.getElementById('toggle-screenreader') as HTMLInputElement;
 const initSpeechBtn = document.getElementById('init-speech') as HTMLButtonElement;
+const versionEl = document.getElementById('version') as HTMLSpanElement;
+versionEl.textContent = VERSION;
 
 let currentDataset = 'sine';
 let chartPoints: Point[] = [];
@@ -147,7 +151,10 @@ function updatePointer(clientX: number, clientY: number): void {
             if (crossed) vibrateGridLine();
         }
     }
-    if (settings.sound) playForProximity(currentProximity);
+    if (settings.sound) {
+        resumeAudio();
+        playForProximity(currentProximity);
+    }
     maybeResetDwell(next);
     updateStatus();
     render();
@@ -228,7 +235,13 @@ toggleScreenReader.checked = settings.screenReader;
 toggleSound.addEventListener('change', () => {
     settings.sound = toggleSound.checked;
     saveSettings(settings);
-    if (!settings.sound) stopAudio();
+    if (settings.sound) {
+        // Init + resume inside the user gesture so audio is ready before the first touch
+        initAudio();
+        resumeAudio();
+    } else {
+        stopAudio();
+    }
 });
 
 toggleHaptic.addEventListener('change', () => {
