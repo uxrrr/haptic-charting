@@ -62,7 +62,7 @@ export function drawChart(ctx: CanvasRenderingContext2D, state: ChartState, thre
     if (points.length < 2) return;
 
     // Draw grid lines
-    ctx.strokeStyle = '#1a1a1a';
+    ctx.strokeStyle = '#333';
     ctx.lineWidth = 1 * dpr;
     for (let i = 0; i <= 4; i++) {
         const frac = i / 4;
