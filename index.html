@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Haptic Chart Explorer</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,11 +26,11 @@
                 <option value="step">Step Function</option>
             </select>
         </div>
-        <canvas id="chart-canvas"></canvas>
+        <canvas id="chart-canvas" role="img" aria-label="Interactive haptic line chart. Touch and drag to explore. The chart area uses coordinates from 0 to 100 on both axes. Hold your finger still for one second to hear the current coordinates spoken aloud."></canvas>
         <div id="status">Touch the screen and explore the chart</div>
     </div>
     <div id="aria-live" class="sr-only" aria-live="polite" role="status"></div>
-    <p class="sr-only">Haptic Chart Explorer. Touch the screen and move your finger to find the chart line. The phone will vibrate or play a tone when your finger is on or near the line. Follow the feedback to trace the chart shape. Use the dataset selector to switch between different chart patterns.</p>
+    <p class="sr-only">Haptic Chart Explorer. Touch the screen and move your finger to find the chart line. The phone will vibrate or play a tone when your finger is on or near the line. Follow the feedback to trace the chart shape. Hold your finger still for one second to hear the current coordinates announced; values range from 0 to 100 on both axes, with 0,0 at the bottom-left. Use the dataset selector to switch between different chart patterns.</p>
     <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
