@@ -30,7 +30,6 @@ let currentDataset = 'sine';
 let chartPoints: Point[] = [];
 let currentGridLines: GridLine[] = [];
 let touchPos: Point | null = null;
-let prevTouchPos: Point | null = null;
 let currentProximity = Infinity;
 let lastAriaUpdate = 0;
 let dwellTimer: number | null = null;
@@ -136,18 +135,18 @@ function clearDwell(): void {
 function updatePointer(clientX: number, clientY: number): void {
     const rect = canvas.getBoundingClientRect();
     const next: Point = { x: clientX - rect.left, y: clientY - rect.top };
+    const prev = touchPos;
+    touchPos = next;
     const pixelDist = distanceToPolyline(next, chartPoints);
     currentProximity = pixelDist / THRESHOLD_PX;
     if (hasVibration && settings.haptic) {
         vibrateForProximity(currentProximity);
-        // Brief pulse when crossing a grid line, but only when not already in chart-line haptic feedback
-        if (currentProximity >= 1 && touchPos) {
-            const crossed = detectGridCrossing(touchPos, next);
+        // Brief pulse when crossing a grid line, only when not in chart-line haptic range
+        if (currentProximity >= 1 && prev) {
+            const crossed = detectGridCrossing(prev, next);
             if (crossed) vibrateGridLine();
         }
     }
-    prevTouchPos = touchPos;
-    touchPos = next;
     if (settings.sound) playForProximity(currentProximity);
     maybeResetDwell(next);
     updateStatus();
@@ -155,7 +154,6 @@ function updatePointer(clientX: number, clientY: number): void {
 }
 
 function endPointer(): void {
-    prevTouchPos = null;
     touchPos = null;
     currentProximity = Infinity;
     stopHaptics();
