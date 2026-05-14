@@ -1,0 +1,26 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: [self-hosted, Linux]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aspect-build/setup-node@latest
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: GITHUB_PAGES=/pages/msafire/haptic-charting/ npm run build
+      - uses: aspect-build/configure-pages@latest
+      - uses: aspect-build/upload-pages-artifact@latest
+        with:
+          path: dist
+      - uses: aspect-build/deploy-pages@latest

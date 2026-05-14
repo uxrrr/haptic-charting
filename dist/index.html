@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Haptic Chart Explorer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #000; color: #fff; font-family: system-ui, sans-serif; touch-action: none; }
+        #app { width: 100%; height: 100%; display: flex; flex-direction: column; }
+        #controls { padding: 8px 12px; display: flex; align-items: center; gap: 12px; background: #111; border-bottom: 1px solid #333; z-index: 1; }
+        #controls label { font-size: 14px; color: #aaa; }
+        #controls select { background: #222; color: #fff; border: 1px solid #555; padding: 4px 8px; font-size: 14px; border-radius: 4px; }
+        #chart-canvas { flex: 1; display: block; }
+        #status { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 12px; background: rgba(0,0,0,0.8); font-size: 13px; color: #888; pointer-events: none; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+    </style>
+  <script type="module" crossorigin src="/pages/msafire/haptic-charting/assets/index-NEXR5M_L.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div id="controls">
+            <label for="dataset-select">Dataset:</label>
+            <select id="dataset-select">
+                <option value="sine">Sine Wave</option>
+                <option value="stock">Stock Price</option>
+                <option value="step">Step Function</option>
+            </select>
+        </div>
+        <canvas id="chart-canvas"></canvas>
+        <div id="status">Touch the screen and explore the chart</div>
+    </div>
+    <div id="aria-live" class="sr-only" aria-live="polite" role="status"></div>
+    <p class="sr-only">Haptic Chart Explorer. Touch the screen and move your finger to find the chart line. The phone will vibrate or play a tone when your finger is on or near the line. Follow the feedback to trace the chart shape. Use the dataset selector to switch between different chart patterns.</p>
+</body>
+</html>
