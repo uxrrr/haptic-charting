@@ -10,7 +10,6 @@ const VERSION = 'v17';
 
 const hasVibration = 'vibrate' in navigator;
 const settings: Settings = loadSettings();
-if (!hasVibration) settings.haptic = false;
 
 const THRESHOLD_PX = 35;
 const GRID_DWELL_THRESHOLD_PX = 20;
@@ -229,7 +228,6 @@ datasetSelect.addEventListener('change', () => {
 // Initialize toggle checkboxes from settings
 toggleSound.checked = settings.sound;
 toggleHaptic.checked = settings.haptic;
-toggleHaptic.disabled = !hasVibration;
 toggleScreenReader.checked = settings.screenReader;
 
 toggleSound.addEventListener('change', () => {
