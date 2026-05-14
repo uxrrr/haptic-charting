@@ -20,7 +20,7 @@ export function primeSpeech(): void {
 // toggle/pointerdown doesn't take.
 export function forcePrimeSpeech(): void {
     if (!supported) return;
-    const utter = new SpeechSynthesisUtterance('speech ready');
+    const utter = new SpeechSynthesisUtterance("let's go");
     utter.volume = 1;
     utter.rate = 1.3;
     utter.lang = 'en-US';
