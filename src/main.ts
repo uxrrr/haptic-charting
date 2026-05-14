@@ -10,6 +10,7 @@ const hasVibration = 'vibrate' in navigator;
 const settings: Settings = loadSettings();
 
 const THRESHOLD_PX = 35;
+const HAPTIC_THRESHOLD_PX = 8;
 const ARIA_INTERVAL_MS = 500;
 const DWELL_MS = 500;
 const DWELL_MOVE_TOLERANCE_PX = 4;
@@ -107,7 +108,7 @@ function updatePointer(clientX: number, clientY: number): void {
     touchPos = next;
     const pixelDist = distanceToPolyline(next, chartPoints);
     currentProximity = pixelDist / THRESHOLD_PX;
-    if (hasVibration && settings.haptic) vibrateForProximity(currentProximity);
+    if (hasVibration && settings.haptic) vibrateForProximity(pixelDist / HAPTIC_THRESHOLD_PX);
     if (settings.sound) playForProximity(currentProximity);
     maybeResetDwell(next);
     updateStatus();
