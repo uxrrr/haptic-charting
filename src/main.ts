@@ -1,6 +1,6 @@
 import { datasets } from './data';
-import { valuesToPoints, drawChart, type Point, type ChartState } from './chart';
-import { vibrateForProximity, stop as stopHaptics } from './haptics';
+import { valuesToPoints, drawChart, getGridLines, type Point, type ChartState, type GridLine } from './chart';
+import { vibrateForProximity, vibrateGridLine, stop as stopHaptics } from './haptics';
 import { initAudio, resumeAudio, playForProximity, stopAudio } from './audio';
 import { distanceToPolyline, describePosition } from './touch';
 import { speak, cancelSpeech, primeSpeech, forcePrimeSpeech } from './speech';
@@ -11,6 +11,7 @@ const settings: Settings = loadSettings();
 if (!hasVibration) settings.haptic = false;
 
 const THRESHOLD_PX = 35;
+const GRID_DWELL_THRESHOLD_PX = 20;
 const ARIA_INTERVAL_MS = 500;
 const DWELL_MS = 500;
 const DWELL_MOVE_TOLERANCE_PX = 4;
@@ -27,7 +28,9 @@ const initSpeechBtn = document.getElementById('init-speech') as HTMLButtonElemen
 
 let currentDataset = 'sine';
 let chartPoints: Point[] = [];
+let currentGridLines: GridLine[] = [];
 let touchPos: Point | null = null;
+let prevTouchPos: Point | null = null;
 let currentProximity = Infinity;
 let lastAriaUpdate = 0;
 let dwellTimer: number | null = null;
@@ -45,7 +48,30 @@ function updateChart(): void {
     const rect = canvas.getBoundingClientRect();
     const values = datasets[currentDataset].values;
     chartPoints = valuesToPoints(values, rect.width, rect.height);
+    currentGridLines = getGridLines(rect.width, rect.height);
     render();
+}
+
+function nearestGridLine(pos: Point): { line: GridLine; dist: number } | null {
+    let best: { line: GridLine; dist: number } | null = null;
+    for (const line of currentGridLines) {
+        const d = line.orientation === 'horizontal'
+            ? Math.abs(pos.y - line.position)
+            : Math.abs(pos.x - line.position);
+        if (!best || d < best.dist) best = { line, dist: d };
+    }
+    return best;
+}
+
+function detectGridCrossing(prev: Point, next: Point): GridLine | null {
+    for (const line of currentGridLines) {
+        if (line.orientation === 'horizontal') {
+            if ((prev.y - line.position) * (next.y - line.position) < 0) return line;
+        } else {
+            if ((prev.x - line.position) * (next.x - line.position) < 0) return line;
+        }
+    }
+    return null;
 }
 
 function render(): void {
@@ -66,6 +92,11 @@ function pixelToChartCoords(p: Point, w: number, h: number): { x: number; y: num
 
 function speakCoordinates(): void {
     if (!touchPos || !settings.screenReader) return;
+    const nearest = nearestGridLine(touchPos);
+    if (nearest && nearest.dist < GRID_DWELL_THRESHOLD_PX) {
+        speak(nearest.line.label);
+        return;
+    }
     const rect = canvas.getBoundingClientRect();
     const { x, y } = pixelToChartCoords(touchPos, rect.width, rect.height);
     speak(`${x}, ${y}`);
@@ -105,10 +136,18 @@ function clearDwell(): void {
 function updatePointer(clientX: number, clientY: number): void {
     const rect = canvas.getBoundingClientRect();
     const next: Point = { x: clientX - rect.left, y: clientY - rect.top };
-    touchPos = next;
     const pixelDist = distanceToPolyline(next, chartPoints);
     currentProximity = pixelDist / THRESHOLD_PX;
-    if (hasVibration && settings.haptic) vibrateForProximity(currentProximity);
+    if (hasVibration && settings.haptic) {
+        vibrateForProximity(currentProximity);
+        // Brief pulse when crossing a grid line, but only when not already in chart-line haptic feedback
+        if (currentProximity >= 1 && touchPos) {
+            const crossed = detectGridCrossing(touchPos, next);
+            if (crossed) vibrateGridLine();
+        }
+    }
+    prevTouchPos = touchPos;
+    touchPos = next;
     if (settings.sound) playForProximity(currentProximity);
     maybeResetDwell(next);
     updateStatus();
@@ -116,6 +155,7 @@ function updatePointer(clientX: number, clientY: number): void {
 }
 
 function endPointer(): void {
+    prevTouchPos = null;
     touchPos = null;
     currentProximity = Infinity;
     stopHaptics();

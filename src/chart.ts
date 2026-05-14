@@ -9,7 +9,35 @@ export interface ChartState {
     proximity: number;
 }
 
+export interface GridLine {
+    label: string;
+    orientation: 'horizontal' | 'vertical';
+    position: number; // CSS pixel coordinate (y for horizontal, x for vertical)
+}
+
 const PADDING = { top: 20, right: 20, bottom: 20, left: 20 };
+
+export function getGridLines(width: number, height: number): GridLine[] {
+    const plotW = width - PADDING.left - PADDING.right;
+    const plotH = height - PADDING.top - PADDING.bottom;
+    const lines: GridLine[] = [];
+    for (let i = 0; i <= 4; i++) {
+        const frac = i / 4;
+        // Horizontal lines: frac=0 is top (value 100%), frac=1 is bottom (value 0%)
+        const valuePct = Math.round((1 - frac) * 100);
+        lines.push({
+            label: `${valuePct}% horizontal grid line`,
+            orientation: 'horizontal',
+            position: PADDING.top + frac * plotH,
+        });
+        lines.push({
+            label: `${Math.round(frac * 100)}% vertical grid line`,
+            orientation: 'vertical',
+            position: PADDING.left + frac * plotW,
+        });
+    }
+    return lines;
+}
 
 export function valuesToPoints(values: number[], width: number, height: number): Point[] {
     const plotW = width - PADDING.left - PADDING.right;
@@ -37,10 +65,16 @@ export function drawChart(ctx: CanvasRenderingContext2D, state: ChartState, thre
     ctx.strokeStyle = '#1a1a1a';
     ctx.lineWidth = 1 * dpr;
     for (let i = 0; i <= 4; i++) {
-        const y = PADDING.top * dpr + (i / 4) * (height - (PADDING.top + PADDING.bottom) * dpr);
+        const frac = i / 4;
+        const y = PADDING.top * dpr + frac * (height - (PADDING.top + PADDING.bottom) * dpr);
         ctx.beginPath();
         ctx.moveTo(PADDING.left * dpr, y);
         ctx.lineTo(width - PADDING.right * dpr, y);
+        ctx.stroke();
+        const x = PADDING.left * dpr + frac * (width - (PADDING.left + PADDING.right) * dpr);
+        ctx.beginPath();
+        ctx.moveTo(x, PADDING.top * dpr);
+        ctx.lineTo(x, height - PADDING.bottom * dpr);
         ctx.stroke();
     }
 

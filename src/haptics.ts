@@ -46,6 +46,11 @@ function startContinuous(): void {
     }, 100);
 }
 
+export function vibrateGridLine(): void {
+    if (!('vibrate' in navigator)) return;
+    navigator.vibrate(15);
+}
+
 export function stop(): void {
     if (vibrationTimer) {
         clearTimeout(vibrationTimer);
