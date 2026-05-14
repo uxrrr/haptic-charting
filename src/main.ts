@@ -124,13 +124,29 @@ function endPointer(): void {
     render();
 }
 
-function handleTouch(e: TouchEvent): void {
+let activePointerId: number | null = null;
+
+function handlePointerDown(e: PointerEvent): void {
+    if (activePointerId !== null) return;
+    activePointerId = e.pointerId;
+    canvas.setPointerCapture(e.pointerId);
     e.preventDefault();
-    const touch = e.touches[0];
-    if (!touch) return;
     initAudio();
     resumeAudio();
-    updatePointer(touch.clientX, touch.clientY);
+    updatePointer(e.clientX, e.clientY);
+}
+
+function handlePointerMove(e: PointerEvent): void {
+    if (e.pointerId !== activePointerId) return;
+    e.preventDefault();
+    updatePointer(e.clientX, e.clientY);
+}
+
+function handlePointerEnd(e: PointerEvent): void {
+    if (e.pointerId !== activePointerId) return;
+    activePointerId = null;
+    try { canvas.releasePointerCapture(e.pointerId); } catch { /* noop */ }
+    endPointer();
 }
 
 function updateStatus(): void {
@@ -185,23 +201,13 @@ toggleScreenReader.addEventListener('change', () => {
     }
 });
 
-canvas.addEventListener('touchstart', handleTouch, { passive: false });
-canvas.addEventListener('touchmove', handleTouch, { passive: false });
-canvas.addEventListener('touchend', endPointer);
-canvas.addEventListener('touchcancel', endPointer);
-
-canvas.addEventListener('mousedown', (e) => {
-    initAudio();
-    resumeAudio();
-    updatePointer(e.clientX, e.clientY);
-});
-canvas.addEventListener('mousemove', (e) => {
-    if (e.buttons === 0) return;
-    updatePointer(e.clientX, e.clientY);
-});
-canvas.addEventListener('mouseup', endPointer);
-canvas.addEventListener('mouseleave', () => {
-    if (touchPos) endPointer();
+canvas.addEventListener('pointerdown', handlePointerDown);
+canvas.addEventListener('pointermove', handlePointerMove);
+canvas.addEventListener('pointerup', handlePointerEnd);
+canvas.addEventListener('pointercancel', handlePointerEnd);
+canvas.addEventListener('pointerleave', (e) => {
+    // For mouse: end on leave. For touch (with pointer capture), this won't fire mid-drag.
+    if (e.pointerType === 'mouse' && e.pointerId === activePointerId) handlePointerEnd(e);
 });
 
 window.addEventListener('resize', resize);

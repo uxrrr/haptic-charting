@@ -16,7 +16,7 @@
         #controls .toggle:has(input:disabled) { color: #555; cursor: not-allowed; }
         #controls .toggle:has(input:disabled) input { cursor: not-allowed; }
         #chart-region { flex: 1; position: relative; display: flex; flex-direction: column; }
-        #chart-canvas { flex: 1; display: block; }
+        #chart-canvas { flex: 1; display: block; touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
         #status { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 12px; background: rgba(0,0,0,0.8); font-size: 13px; color: #888; pointer-events: none; }
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
         :focus { outline: none; }
