@@ -167,12 +167,17 @@ function updateStatus(): void {
     }
 }
 
+function updateCanvasAltTag(): void {
+    canvas.setAttribute('aria-label', datasets[currentDataset].description);
+}
+
 datasetSelect.addEventListener('change', () => {
     currentDataset = datasetSelect.value;
     cancelSpeech();
     if (settings.screenReader) {
         speak(`${datasets[currentDataset].name || currentDataset} selected`);
     }
+    updateCanvasAltTag();
     updateChart();
 });
 
@@ -219,4 +224,5 @@ canvas.addEventListener('pointerleave', (e) => {
 });
 
 window.addEventListener('resize', resize);
+updateCanvasAltTag();
 resize();
