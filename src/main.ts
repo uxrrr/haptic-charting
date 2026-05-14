@@ -3,7 +3,7 @@ import { valuesToPoints, drawChart, type Point, type ChartState } from './chart'
 import { vibrateForProximity, stop as stopHaptics } from './haptics';
 import { initAudio, resumeAudio, playForProximity, stopAudio } from './audio';
 import { distanceToPolyline, describePosition } from './touch';
-import { speak, cancelSpeech } from './speech';
+import { speak, cancelSpeech, primeSpeech } from './speech';
 import { loadSettings, saveSettings, type Settings } from './settings';
 
 const hasVibration = 'vibrate' in navigator;
@@ -133,6 +133,7 @@ function handlePointerDown(e: PointerEvent): void {
     e.preventDefault();
     initAudio();
     resumeAudio();
+    if (settings.screenReader) primeSpeech();
     updatePointer(e.clientX, e.clientY);
 }
 
@@ -195,7 +196,9 @@ toggleHaptic.addEventListener('change', () => {
 toggleScreenReader.addEventListener('change', () => {
     settings.screenReader = toggleScreenReader.checked;
     saveSettings(settings);
-    if (!settings.screenReader) {
+    if (settings.screenReader) {
+        primeSpeech();
+    } else {
         cancelSpeech();
         clearDwell();
     }
