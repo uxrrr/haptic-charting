@@ -12,7 +12,7 @@ if (!hasVibration) settings.haptic = false;
 
 const THRESHOLD_PX = 35;
 const ARIA_INTERVAL_MS = 500;
-const DWELL_MS = 1000;
+const DWELL_MS = 500;
 const DWELL_MOVE_TOLERANCE_PX = 4;
 
 const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
