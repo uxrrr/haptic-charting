@@ -11,23 +11,30 @@
         #controls { padding: 8px 12px; display: flex; align-items: center; gap: 12px; background: #111; border-bottom: 1px solid #333; z-index: 1; }
         #controls label { font-size: 14px; color: #aaa; }
         #controls select { background: #222; color: #fff; border: 1px solid #555; padding: 4px 8px; font-size: 14px; border-radius: 4px; }
+        #chart-region { flex: 1; position: relative; display: flex; flex-direction: column; }
         #chart-canvas { flex: 1; display: block; }
         #status { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 12px; background: rgba(0,0,0,0.8); font-size: 13px; color: #888; pointer-events: none; }
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+        :focus { outline: none; }
+        :focus-visible { outline: 2px solid #4ea1ff; outline-offset: 2px; border-radius: 2px; }
+        #controls select:focus-visible { outline: 2px solid #4ea1ff; outline-offset: 2px; }
     </style>
 </head>
 <body>
     <div id="app">
-        <div id="controls">
+        <h1 id="page-title" class="sr-only">Haptic Chart Explorer</h1>
+        <header id="controls">
             <label for="dataset-select">Dataset:</label>
             <select id="dataset-select">
                 <option value="sine">Sine Wave</option>
                 <option value="stock">Stock Price</option>
                 <option value="step">Step Function</option>
             </select>
-        </div>
-        <canvas id="chart-canvas" role="img" aria-label="Interactive haptic line chart. Touch and drag to explore. The chart area uses coordinates from 0 to 100 on both axes. Hold your finger still for one second to hear the current coordinates spoken aloud."></canvas>
-        <div id="status">Touch the screen and explore the chart</div>
+        </header>
+        <main id="chart-region" aria-labelledby="page-title">
+            <canvas id="chart-canvas" role="img" aria-label="Interactive haptic line chart. Touch and drag to explore. The chart area uses coordinates from 0 to 100 on both axes. Hold your finger still for one second to hear the current coordinates spoken aloud."></canvas>
+            <div id="status">Touch the screen and explore the chart</div>
+        </main>
     </div>
     <div id="aria-live" class="sr-only" aria-live="polite" role="status"></div>
     <p class="sr-only">Haptic Chart Explorer. Touch the screen and move your finger to find the chart line. The phone will vibrate or play a tone when your finger is on or near the line. Follow the feedback to trace the chart shape. Hold your finger still for one second to hear the current coordinates announced; values range from 0 to 100 on both axes, with 0,0 at the bottom-left. Use the dataset selector to switch between different chart patterns.</p>
