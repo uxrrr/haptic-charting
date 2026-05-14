@@ -15,6 +15,8 @@
         #controls .toggle input[type="checkbox"] { accent-color: #4ea1ff; cursor: pointer; }
         #controls .toggle:has(input:disabled) { color: #555; cursor: not-allowed; }
         #controls .toggle:has(input:disabled) input { cursor: not-allowed; }
+        #controls button { background: #222; color: #fff; border: 1px solid #555; padding: 4px 10px; font-size: 14px; border-radius: 4px; cursor: pointer; }
+        #controls button:active { background: #333; }
         #chart-region { flex: 1; position: relative; display: flex; flex-direction: column; }
         #chart-canvas { flex: 1; display: block; touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
         #status { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 12px; background: rgba(0,0,0,0.8); font-size: 13px; color: #888; pointer-events: none; }
@@ -37,6 +39,7 @@
             <label class="toggle"><input type="checkbox" id="toggle-sound"> Sound</label>
             <label class="toggle"><input type="checkbox" id="toggle-haptic"> Haptic</label>
             <label class="toggle"><input type="checkbox" id="toggle-screenreader"> Simulate screen reader</label>
+            <button id="test-speech" type="button">Test speech</button>
         </header>
         <main id="chart-region" aria-labelledby="page-title">
             <canvas id="chart-canvas" role="img" aria-label="Interactive haptic line chart. Touch and drag to explore. The chart area uses coordinates from 0 to 100 on both axes. Hold your finger still for one second to hear the current coordinates spoken aloud."></canvas>
