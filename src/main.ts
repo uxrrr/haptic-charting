@@ -4,8 +4,11 @@ import { vibrateForProximity, stop as stopHaptics } from './haptics';
 import { initAudio, resumeAudio, playForProximity, stopAudio } from './audio';
 import { distanceToPolyline, describePosition } from './touch';
 import { speak, cancelSpeech } from './speech';
+import { loadSettings, saveSettings, type Settings } from './settings';
 
 const hasVibration = 'vibrate' in navigator;
+const settings: Settings = loadSettings();
+if (!hasVibration) settings.haptic = false;
 
 const THRESHOLD_PX = 35;
 const ARIA_INTERVAL_MS = 500;
@@ -17,6 +20,9 @@ const ctx = canvas.getContext('2d')!;
 const datasetSelect = document.getElementById('dataset-select') as HTMLSelectElement;
 const statusEl = document.getElementById('status') as HTMLDivElement;
 const ariaLive = document.getElementById('aria-live') as HTMLDivElement;
+const toggleSound = document.getElementById('toggle-sound') as HTMLInputElement;
+const toggleHaptic = document.getElementById('toggle-haptic') as HTMLInputElement;
+const toggleScreenReader = document.getElementById('toggle-screenreader') as HTMLInputElement;
 
 let currentDataset = 'sine';
 let chartPoints: Point[] = [];
@@ -58,7 +64,7 @@ function pixelToChartCoords(p: Point, w: number, h: number): { x: number; y: num
 }
 
 function speakCoordinates(): void {
-    if (!touchPos) return;
+    if (!touchPos || !settings.screenReader) return;
     const rect = canvas.getBoundingClientRect();
     const { x, y } = pixelToChartCoords(touchPos, rect.width, rect.height);
     speak(`${x}, ${y}`);
@@ -101,8 +107,8 @@ function updatePointer(clientX: number, clientY: number): void {
     touchPos = next;
     const pixelDist = distanceToPolyline(next, chartPoints);
     currentProximity = pixelDist / THRESHOLD_PX;
-    if (hasVibration) vibrateForProximity(currentProximity);
-    playForProximity(currentProximity);
+    if (hasVibration && settings.haptic) vibrateForProximity(currentProximity);
+    if (settings.sound) playForProximity(currentProximity);
     maybeResetDwell(next);
     updateStatus();
     render();
@@ -146,8 +152,37 @@ function updateStatus(): void {
 datasetSelect.addEventListener('change', () => {
     currentDataset = datasetSelect.value;
     cancelSpeech();
-    speak(`${datasets[currentDataset].name || currentDataset} selected`);
+    if (settings.screenReader) {
+        speak(`${datasets[currentDataset].name || currentDataset} selected`);
+    }
     updateChart();
+});
+
+// Initialize toggle checkboxes from settings
+toggleSound.checked = settings.sound;
+toggleHaptic.checked = settings.haptic;
+toggleHaptic.disabled = !hasVibration;
+toggleScreenReader.checked = settings.screenReader;
+
+toggleSound.addEventListener('change', () => {
+    settings.sound = toggleSound.checked;
+    saveSettings(settings);
+    if (!settings.sound) stopAudio();
+});
+
+toggleHaptic.addEventListener('change', () => {
+    settings.haptic = toggleHaptic.checked;
+    saveSettings(settings);
+    if (!settings.haptic) stopHaptics();
+});
+
+toggleScreenReader.addEventListener('change', () => {
+    settings.screenReader = toggleScreenReader.checked;
+    saveSettings(settings);
+    if (!settings.screenReader) {
+        cancelSpeech();
+        clearDwell();
+    }
 });
 
 canvas.addEventListener('touchstart', handleTouch, { passive: false });
