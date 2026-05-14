@@ -1,17 +1,22 @@
 // Web Speech API wrapper for screen-reader-style coordinate announcements.
+//
+// iOS Safari quirks handled here:
+//   1. The FIRST speak() must happen synchronously inside a user-gesture handler.
+//      An empty/zero-volume utterance does NOT unlock the queue — it must have
+//      real content and audible volume. We use a near-silent space character.
+//   2. After speechSynthesis.cancel() the queue is paused. Calling speak()
+//      alone won't play; we must also call resume() to keep the queue alive.
 
 const supported = typeof window !== 'undefined' && 'speechSynthesis' in window;
 let primed = false;
 
-// iOS Safari requires the FIRST speechSynthesis.speak() call to happen
-// synchronously inside a user-gesture handler. After that initial call
-// (even if silent), subsequent speak() calls from timers/callbacks work.
-// Call this from pointerdown.
 export function primeSpeech(): void {
     if (!supported || primed) return;
-    const utter = new SpeechSynthesisUtterance('');
-    utter.volume = 0;
+    const utter = new SpeechSynthesisUtterance(' ');
+    utter.volume = 0.01;
+    utter.rate = 10;
     window.speechSynthesis.speak(utter);
+    window.speechSynthesis.resume();
     primed = true;
 }
 
@@ -24,6 +29,9 @@ export function speak(text: string): void {
     utter.volume = 1;
     utter.lang = 'en-US';
     window.speechSynthesis.speak(utter);
+    // iOS: after cancel() the queue is paused. resume() keeps subsequent speak()
+    // calls flowing — without this, speak() from a timer silently no-ops on iOS.
+    window.speechSynthesis.resume();
 }
 
 export function cancelSpeech(): void {
